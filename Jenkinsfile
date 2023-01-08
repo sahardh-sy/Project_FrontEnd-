@@ -6,10 +6,7 @@ pipeline {
     dokerImage="front_back"
     }
     
-    tools {
-        nodejs 'node 16.16.0'
-    }
- 
+   
         stage('Git Preparation') {
             steps {
                 cleanWs()
@@ -19,7 +16,7 @@ pipeline {
                     commit_id = readFile('.git/commit-id').trim()  
                 }
             }
-            }
+        }
         
 
         stage('Install dependencies') {
