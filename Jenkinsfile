@@ -1,53 +1,46 @@
 pipeline {
     agent any
-    environment{
-    registry="sahar24/front_back"
-    registryCredential='dockerHub'
-    dokerImage="front_back"
-    }
-    
+   
     stages {
-  
-        stage('Git Preparation') {
+      
+      
+        stage("Build image"){
             steps {
-                cleanWs()
-                checkout scm
-                sh 'git rev-parse --short HEAD > .git/commit-id'
-                script {
-                    commit_id = readFile('.git/commit-id').trim()  
-                }
+
+                sh '''
+                
+                docker build -t sahar24/front:${IMAGETAG}  . 
+
+                '''
+
+                  echo 'image builded'
             }
         }
+        stage("Push image"){
+            steps {
+                 script{
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'dockerhub-cred',
+                    usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        env.REG_USERNAME = USERNAME
+                        env.REG_PASSWORD = PASSWORD
+                    }
+
+               sh ''' 
+               docker login --username=${REG_USERNAME} --password=${REG_PASSWORD}
+                docker push sahar24/front:${IMAGETAG} 
+                '''
+
+            }
+            }
+        }
+
+       
+
+    }
+
+     environment {
         
-
-        stage('Install dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'npm run build --prod'
-            }
-
-        }
-        stage('Build Docker image ') {
-           
-            steps {
-                script {
-                    dockerImage = docker.build imageName + ":${commit_id}"
-                }
-            }
-        }   
-        stage("docker push") {
-            steps{
-                script {
-                    docker.withRegistry( '', registryCredential ) {
-                    dockerImage.push()   
-                }
-                }
-            }
-        }
+       
+        IMAGETAG = "${env.BUILD_ID}"
     }
 }
