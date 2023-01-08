@@ -4,7 +4,7 @@ pipeline {
     registry="sahar24/front_back"
     registryCredential='dockerHub'
     dokerImage="front_back"
-    
+    }
     
     tools {
         nodejs 'node 16.16.0'
@@ -45,13 +45,15 @@ pipeline {
         stage("docker push") {
             steps{
                 script {
-                docker.withRegistry( '', registryCredential ) {
-                dockerImage.push()
-    }
-    }
-   }
-
+                    docker.withRegistry( '', registryCredential ) {
+                    dockerImage.push()   
+                }
+                }
+            }
+        }
     stage('Cleaning up') {
-             steps{
-             sh "docker rmi $registry:$BUILD_NUMBER"
+            steps{
+                sh "docker rmi $registry:$BUILD_NUMBER"}
+            }
+   }
 }
