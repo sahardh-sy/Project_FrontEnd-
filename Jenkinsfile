@@ -31,7 +31,6 @@ pipeline {
                 sh 'npm run build --prod'
             }
 
-
         }
         stage('Build Docker image ') {
            
@@ -40,6 +39,7 @@ pipeline {
                     dockerImage = docker.build imageName + ":${commit_id}"
                 }
             }
+        }   
         stage("docker push") {
             steps{
                 script {
@@ -47,11 +47,6 @@ pipeline {
                     dockerImage.push()   
                 }
                 }
-            }
-        }
-        stage('Cleaning up') {
-            steps{
-                sh "docker rmi $registry:$BUILD_NUMBER"
             }
         }
     }
