@@ -1,11 +1,10 @@
-#Stage 1
-FROM node:16.19.0-slim as build-step
+# stage 1
+FROM node:latest as node
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install --force
 COPY . .
-RUN npm run build
-### STAGE 2: Run ###
+RUN npm install
+RUN npm run build --prod
+
+# stage 2
 FROM nginx:alpine
-COPY --from=build-step /app/dist/crudtuto-Front /usr/share/nginx/html
-EXPOSE 80
+COPY dist/crudtuto-Front /usr/share/nginx/html
